@@ -4,11 +4,16 @@ import com.study.blog.model.RoleType;
 import com.study.blog.model.User;
 import com.study.blog.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.List;
 import java.util.function.Supplier;
 
 @RestController
@@ -17,6 +22,21 @@ public class DummyControllerTest {
     // 의존성주입(DI) -
     @Autowired
     private UserRepository userRepository;
+
+
+    // 다건 조회
+    @GetMapping(value = "/dummy/users")
+    public List<User> showUsersDetail() {
+        return userRepository.findAll();
+    }
+
+    // 한 페이지당 2건에 데이터를 리턴받아 볼 예정(자동 페이지네이션)
+    // http://localhost:8000/dummy/users/page?page=0 부터 1,2,3,4 ~
+    @GetMapping(value = "/dummy/users/page")
+    public List<User> showUserPageDetail(@PageableDefault(size = 2, sort = "id", direction = Sort.Direction.DESC)Pageable pageable){
+        List<User> users = userRepository.findAll(pageable).getContent();
+        return users;
+    }
 
     // {id} 주소로 파라메터를 전달 받을 수 있음
     // http://localhost:8000/blog/dummy/user/3
