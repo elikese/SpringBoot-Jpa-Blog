@@ -1,11 +1,18 @@
 package com.study.blog.test;
 
+import com.study.blog.model.RoleType;
 import com.study.blog.model.User;
+import com.study.blog.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 public class DummyControllerTest {
+
+    // 의존성주입(DI) -
+    @Autowired
+    private UserRepository userRepository;
 
     //http://localhost:8000/blog/dummy/join (요청)
     //http의 body에 username, password, email 데이터를 정확히 가지고 요청하게 되면(JSON아님)
@@ -21,9 +28,17 @@ public class DummyControllerTest {
     // Object로도 데이터 받기 가능
     @PostMapping(value = "/dummy/join2")
     public String join2(User user) {
-        System.out.println("username: " + user.getUsername());
-        System.out.println("password: " + user.getPassword());
-        System.out.println("email: " + user.getPassword());
+        System.out.println(user);
+
+        user.setRole(RoleType.USER); // @ColumnDefault & @DynamicInsert 대신 Enum으로 지정해서 set해주자
+        userRepository.save(user);
         return "회원가입 완료";
     }
+    //    insert into
+    //    User(crateDate, email, password, role, username)
+    //    values(?, ?, ?, ?, ?)
+    //     * createDate는 @CreationTimestamp가 insert당시 처리해줌
+    //     * role에 null이 들어감 -> 쿼리에서 role을 없애야댐
+    //       -> Entity Class에 @DynamicInsert 사용(null은 쿼리에서 제외해줌)
+
 }
