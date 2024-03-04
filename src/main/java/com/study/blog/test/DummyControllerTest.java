@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.ResponseEntity;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,20 +23,17 @@ public class DummyControllerTest {
 
 
     //더디체킹
-    @Transactional
+    @Transactional // 함수 종료시에 자동 commit이 된다
     @PutMapping("/dummy/user/{id}")
-    public User updateUser(@PathVariable int id, @RequestBody User requestUser){
-        System.out.println("id :" +id );
-        System.out.println("password :" + requestUser.getPassword() );
-        System.out.println("emal :" + requestUser.getEmail() );
-
+    public ResponseEntity<?> updateUser(@PathVariable int id, @RequestBody User requestUser){
         User user = userRepository.findById(id).orElseThrow(()->{
             return new RuntimeException("수정에 실패하였습니다");
-        });
+        }); // user(영속성 컨텍스트(캐시)에 있는 데이터)
         user.setPassword(requestUser.getPassword());
         user.setEmail(requestUser.getEmail());
-
-        return null;
+        // 변경이 감지됨.
+        // @Transactional 때문에 변경내용이 DB에 반영이 됨.(update query 날림) : 이를 더티체킹을 함
+        return ResponseEntity.ok().body(user);
     }
 
     // 다건 조회
