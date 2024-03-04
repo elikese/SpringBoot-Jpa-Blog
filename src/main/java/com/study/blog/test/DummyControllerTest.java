@@ -4,6 +4,7 @@ import com.study.blog.model.RoleType;
 import com.study.blog.model.User;
 import com.study.blog.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 
 @RestController
@@ -21,7 +23,17 @@ public class DummyControllerTest {
     @Autowired
     private UserRepository userRepository;
 
-
+    
+    @DeleteMapping("/dummy/user/{id}")
+    public ResponseEntity<?> deleteUser(@PathVariable int id) {
+        try {
+            userRepository.deleteById(id);
+        } catch (EmptyResultDataAccessException e) {
+            return ResponseEntity.badRequest().body(Map.of("errorMessage","해당id는 존재하지 않습니다"));
+        }
+        return ResponseEntity.ok().body(Map.of("successMessage",id +"삭제완료"));
+    }
+    
     //더디체킹
     @Transactional // 함수 종료시에 자동 commit이 된다
     @PutMapping("/dummy/user/{id}")
@@ -32,7 +44,7 @@ public class DummyControllerTest {
         user.setPassword(requestUser.getPassword());
         user.setEmail(requestUser.getEmail());
         // 변경이 감지됨.
-        // @Transactional 때문에 변경내용이 DB에 반영이 됨.(update query 날림) : 이를 더티체킹을 함
+        // @Transactional 때문에 변경내용이 DB에 반영이 됨.(update query 날림) : 이를 더티체킹이라 함
         return ResponseEntity.ok().body(user);
     }
 
