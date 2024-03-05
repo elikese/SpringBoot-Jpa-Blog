@@ -28,6 +28,6 @@ public class TempControllerTest {
         // 따라서 yml파일에 view에 대한 속성으로 prefix / suffix통해서 경로 만들어줌
         // prefix : /WEB-INF/views
         // 따라서 풀네임 -> /WEB-INF/views/test.jsp
-        return "/test.jsp";
+        return "test";
     }
 }
